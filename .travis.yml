@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: nV1vz1CXpeEWzAI7GCnY+FMP2F77JoQj6h+82zHAumvupmVgjIm8GWzqjqEGWCb4D+zhJuhHMiDGpy+FZjBVTI82pDYspw1FHpgRHUjntXRgt6GTP5AyqgOnB8QXzuCbMLQVdFUdBI/nGmrZqEOM4f3BlvJowFfiZfZ5xNvOlA/yHrfxi+0qtq1SgpOtsasavBPqoysAMWbcKvrjxeuZ/9V085E6RvmD6TDE/QV/eEUZU1MrTfCkgRBDhVpn49v3K1AN74gSnuaE6hZsmtqbpsivW7EwRypSDI7brOE9jirHGotPzEu89tn/89+/7Ne1uQEkumuYPlvR9VX0u3obwkbDr31x41EwwkC3JMAAAQJhwo3Wnv95mBCGr4gFcJfifpGLKUW1T+xbeiJYQCOHhAlxEs+Qac/B1sJTWs4pLL2RyHtteEjcPKLjq1BxZe3JsCwCXbE7GS2kmf9PkVPT+oW3lymljlA5HJyhje51JgJLbFxGAT/1dpNtwB/hrykvYupp02loub9X790RdMz00MobHZFuoFMjxjjZcneaEMn0wVzidl7H2guvQozZ9En5DMflnL9xJ7+at2fE5Drktl16AgLBq6FAu1IQZ0SIgmWXcQIS399AHikgtp4sDkMBwflfoeB3cqURDn/bXttU4165dAdoX4eUEZB5AXI6DAA=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Cook-s-Decameron--13-A-Study-in-Taste-Containing-over-Two-Hundred-Recipes-for-Italian-Dishe__930
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
